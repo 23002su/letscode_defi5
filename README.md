@@ -1,3 +1,10 @@
+# Bad UI Battle
+
+Inspired by r/badUIbattles (a joke subreddit for intentionally bad UI designs), I created BadUI as an open repository for BadUI's made by me and others.
+
+This repository contains all best (or worst?) bad-UI I've seen.
+
+Feel free to contribute with your own 💩 UI!
 
 ## 1. Champ Errant
 [Source Code](./Champ_Errant/Champ_Errant.html)
