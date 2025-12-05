@@ -8,7 +8,7 @@ Feel free to contribute with your own 💩 UI!
 
 ## 1. Champ Errant
 [Source Code](./Champ_Errant/Champ_Errant.html)
-- [Screen Recording](#) <!-- TODO: Add screen recording link (YouTube, Vimeo, etc.) -->
+- [Screen Recording](./Champ_Errant/Champ_Errant.mp4) <!-- TODO: Add screen recording link (YouTube, Vimeo, etc.) -->
 - [Live Interactive Example!!!](https://23002su.github.io/letscode_defi5/Champ_Errant/Champ_Errant.html)
 
 ## 2. Clavier Céleste
@@ -30,5 +30,6 @@ Feel free to contribute with your own 💩 UI!
 [Source Code](./watch_out_mario/)
 - [Screen Recording](#) <!-- TODO: Add screen recording link (YouTube, Vimeo, etc.) -->
 - [Live Interactive Example!!!](https://23002su.github.io/letscode_defi5/watch_out_mario/index.html)
+
 
 
