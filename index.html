@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bad UI Battle - Collection de Mauvaises Interfaces</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1535 50%, #2d1b4e 100%);
+            color: #e8d5ff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 3em;
+        }
+        .subtitle {
+            text-align: center;
+            color: #a78bfa;
+            margin-bottom: 40px;
+            font-size: 1.2em;
+        }
+        .description {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #fbbf24;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .project-card {
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            border: 3px solid #8b5cf6;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.8);
+            border-color: #a78bfa;
+        }
+        .project-card h2 {
+            color: #fbbf24;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+        .project-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .project-links a {
+            color: #8b5cf6;
+            text-decoration: none;
+            padding: 10px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 5px;
+            transition: all 0.3s;
+            border: 1px solid #8b5cf6;
+        }
+        .project-links a:hover {
+            background: rgba(139, 92, 246, 0.4);
+            color: #a78bfa;
+            transform: scale(1.05);
+        }
+        .coming-soon {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bad UI Battle</h1>
+        <p class="subtitle">💩 Collection de Mauvaises Interfaces Utilisateur</p>
+        
+        <div class="description">
+            <p>Inspiré par r/badUIbattles (un subreddit de blagues pour des designs d'interface intentionnellement mauvais), 
+            ce dépôt contient les meilleures (ou pires?) mauvaises interfaces que j'ai vues.</p>
+            <p style="margin-top: 10px;">N'hésitez pas à contribuer avec vos propres 💩 UI !</p>
+        </div>
+
+        <div class="projects-grid">
+            <div class="project-card">
+                <h2>1. Champ Errant</h2>
+                <div class="project-links">
+                    <a href="./Champ_Errant/Champ_Errant.html" target="_blank">🎮 Essayer maintenant</a>
+                    <a href="https://github.com/23002su/letscode_defi5/blob/main/Champ_Errant/Champ_Errant.html" target="_blank">📝 Code Source</a>
+                    <a href="#" class="coming-soon">📹 Enregistrement d'écran (à venir)</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h2>2. Clavier Céleste</h2>
+                <div class="project-links">
+                    <a href="./Clavier_Céleste/Clavier_Céleste.html" target="_blank">🎮 Essayer maintenant</a>
+                    <a href="https://github.com/23002su/letscode_defi5/blob/main/Clavier_Céleste/Clavier_Céleste.html" target="_blank">📝 Code Source</a>
+                    <a href="#" class="coming-soon">📹 Enregistrement d'écran (à venir)</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h2>3. Red Light Green Light</h2>
+                <div class="project-links">
+                    <a href="./Red_light_green_light/Red_light_green_light.html" target="_blank">🎮 Essayer maintenant</a>
+                    <a href="https://github.com/23002su/letscode_defi5/blob/main/Red_light_green_light/Red_light_green_light.html" target="_blank">📝 Code Source</a>
+                    <a href="#" class="coming-soon">📹 Enregistrement d'écran (à venir)</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h2>4. Space Input</h2>
+                <div class="project-links">
+                    <a href="./space_input/space_input.html" target="_blank">🎮 Essayer maintenant</a>
+                    <a href="https://github.com/23002su/letscode_defi5/blob/main/space_input/space_input.html" target="_blank">📝 Code Source</a>
+                    <a href="#" class="coming-soon">📹 Enregistrement d'écran (à venir)</a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h2>5. Watch out Mario</h2>
+                <div class="project-links">
+                    <a href="./watch_out_mario/index.html" target="_blank">🎮 Essayer maintenant</a>
+                    <a href="https://github.com/23002su/letscode_defi5/tree/main/watch_out_mario" target="_blank">📝 Code Source</a>
+                    <a href="#" class="coming-soon">📹 Enregistrement d'écran (à venir)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
