@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clavier Labyrinthe Galactique - Mode Chaotique</title>
+    <style>
+       body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1535 50%, #2d1b4e 100%);
+            color: #e8d5ff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 { 
+            color: #ffd700; 
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #a78bfa;
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 800px;
+        }
+        .input-container {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        #phone-input {
+            width: 350px;
+            padding: 15px;
+            font-size: 1.5em;
+            border: 3px solid #8b5cf6;
+            background: linear-gradient(135deg, #1e1b4b, #312e81);
+            color: #fbbf24;
+            border-radius: 8px;
+            text-align: center;
+            user-select: none;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            letter-spacing: 3px;
+        }
+        .controls {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            padding: 8px 15px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .control-btn:hover {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            transform: scale(1.05);
+        }
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        #keypad-container {
+            position: relative;
+            width: 850px;
+            height: 600px;
+            border: 5px solid #6366f1;
+            background: radial-gradient(circle at 50% 50%, #0f0a2e 0%, #000000 100%);
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
+            border-radius: 15px;
+        }
+        @keyframes blackHolePulse {
+            0%, 100% { 
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+                box-shadow: 0 0 80px rgba(0, 0, 0, 0.8), 
+                           inset 0 0 100px rgba(0, 0, 0, 0.9),
+                           0 0 0 0 rgba(139, 92, 246, 0.8);
+            }
+            50% { 
+                transform: translate(-50%, -50%) scale(1.1) rotate(180deg);
+                box-shadow: 0 0 120px rgba(0, 0, 0, 1), 
+                           inset 0 0 150px rgba(0, 0, 0, 0.95),
+                           0 0 30px 10px rgba(139, 92, 246, 0.6);
+            }
+        }
+        @keyframes accretionDisk {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes reverseAccretion {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+        #target-zone {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fbbf24;
+            font-weight: bold;
+            font-size: 1.2em;
+            z-index: 10;
+            background: radial-gradient(circle, 
+                rgba(0, 0, 0, 1) 0%,
+                rgba(0, 0, 0, 0.9) 30%,
+                rgba(20, 20, 20, 0.7) 50%,
+                transparent 70%);
+            border-radius: 50%;
+            animation: blackHolePulse 4s ease-in-out infinite;
+            cursor: pointer;
+        }
+        #target-zone::before {
+            content: '';
+            position: absolute;
+            width: 140%;
+            height: 140%;
+            background: conic-gradient(
+                from 0deg,
+                transparent,
+                rgba(139, 92, 246, 0.3),
+                rgba(168, 85, 247, 0.6),
+                rgba(139, 92, 246, 0.3),
+                transparent
+            );
+            border-radius: 50%;
+            animation: accretionDisk 8s linear infinite;
+            opacity: 0.8;
+        }
+        #target-zone::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            background: conic-gradient(
+                from 180deg,
+                transparent,
+                rgba(245, 158, 11, 0.3),
+                rgba(251, 191, 36, 0.6),
+                rgba(245, 158, 11, 0.3),
+                transparent
+            );
+            border-radius: 50%;
+            animation: reverseAccretion 6s linear infinite;
+            opacity: 0.6;
+        }
+        #target-zone .label {
+            position: relative;
+            z-index: 11;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 2px solid #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+        }
+        .sphere {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, var(--planet-light), var(--planet-dark));
+            color: white;
+            font-size: 2.2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: grab;
+            user-select: none;
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            box-shadow: 
+                inset -15px -15px 30px rgba(0, 0, 0, 0.7),
+                inset 10px 10px 20px rgba(255, 255, 255, 0.25),
+                0 0 50px var(--planet-glow),
+                0 0 30px var(--planet-glow),
+                0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 5;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.9);
+            font-weight: bold;
+        }
+        .sphere::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            top: 20%;
+            left: 20%;
+            filter: blur(1px);
+        }
+        .sphere::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 70% 70%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.1) 100%);
+        }
+        .sphere:active { 
+            cursor: grabbing; 
+            transform: scale(0.95);
+            box-shadow: 
+                inset -15px -15px 30px rgba(0, 0, 0, 0.7),
+                inset 10px 10px 20px rgba(255, 255, 255, 0.25),
+                0 0 80px var(--planet-glow),
+                0 0 50px var(--planet-glow),
+                0 0 30px var(--planet-glow);
+            filter: brightness(1.2);
+        }
+        .sphere.dragging {
+            z-index: 100;
+        }
+        .hidden {
+            display: none;
+        }
+        .instruction {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border-left: 4px solid #fbbf24;
+            max-width: 800px;
+            text-align: center;
+        }
+        .difficulty-meter {
+            width: 300px;
+            height: 20px;
+            background: linear-gradient(90deg, #10b981, #fbbf24, #ef4444);
+            border-radius: 10px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .difficulty-meter::after {
+            content: 'DIFFICULTÉ MAXIMALE';
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            color: black;
+            font-weight: bold;
+            text-shadow: 0 0 5px white;
+        }
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite alternate;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+   <header>
+        <h1></h1> <!-- SUPPRIMÉ -->
+        <p class="subtitle"></p> <!-- SUPPRIMÉ -->
+        <div class="difficulty-meter"></div>
+        <p id="instruction-status" class="instruction">veuillez saisir votre numero de telephone</p> <!-- VIDE -->
+    </header>
+    
+    <div class="input-container">
+        <input type="text" id="phone-input" maxlength="10" readonly>
+        <div class="controls">
+            <button id="clear-btn" class="control-btn" disabled>effacer</button> <!-- VIDE -->
+            <button id="reset-btn" class="control-btn" disabled>effacer tout</button> <!-- VIDE -->
+            <button id="hint-btn" class="control-btn"></button> <!-- VIDE -->
+        </div>
+    </div>
+
+    <div id="keypad-container" class="hidden">
+        <div class="stars" id="stars-container"></div>
+        <div id="target-zone">
+            <div class="label"></div> <!-- VIDE -->
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+    const phoneInput = document.getElementById('phone-input');
+    const keypadContainer = document.getElementById('keypad-container');
+    const targetZone = document.getElementById('target-zone');
+    const instructionStatus = document.getElementById('instruction-status');
+    const clearBtn = document.getElementById('clear-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const hintBtn = document.getElementById('hint-btn');
+    const starsContainer = document.getElementById('stars-container');
+
+    const MAX_VELOCITY = 3;
+    const CHAOS_FACTOR = 0.7;
+    const BOUNCE_FACTOR = 1.15;
+
+    let gameActive = false;
+    let isDragging = false;
+    let activeSphere = null;
+    let animationFrameId;
+    let sphereElements = [];
+
+    createStars();
+
+    phoneInput.addEventListener('click', () => {
+        const isHidden = keypadContainer.classList.toggle('hidden');
+        if (!isHidden && !gameActive) {
+            gameActive = true;
+            initializeKeypad();
+            animateSpheres();
+            clearBtn.disabled = false;
+            resetBtn.disabled = false;
+        } else if (isHidden) {
+            cancelAnimationFrame(animationFrameId);
+            gameActive = false;
+        }
+    });
+
+    targetZone.addEventListener('click', () => {
+        /* Aucun texte affiché */
+    });
+
+    clearBtn.addEventListener('click', () => {
+        if (phoneInput.value.length > 0) {
+            const lastDigit = phoneInput.value.slice(-1);
+            phoneInput.value = phoneInput.value.slice(0, -1);
+            createSphere(parseInt(lastDigit));
+        }
+    });
+
+    resetBtn.addEventListener('click', () => {
+        phoneInput.value = '';
+        initializeKeypad();
+    });
+
+    hintBtn.addEventListener('click', () => {
+        /* Plus aucun message d'aide */
+    });
+
+    function createStars() {
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.opacity = Math.random() * 0.7 + 0.3;
+            star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+            starsContainer.appendChild(star);
+        }
+    }
+
+    function initializeKeypad() {
+        document.querySelectorAll('.sphere').forEach(s => s.remove());
+        sphereElements = [];
+
+        const digits = [0,1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+
+        digits.forEach((value, index) => {
+            setTimeout(() => createSphere(value), index * 120);
+        });
+    }
+
+    function createSphere(value) {
+        const sphere = document.createElement('div');
+        sphere.classList.add('sphere');
+        sphere.textContent = value;
+        sphere.dataset.value = value;
+
+        const size = value === 0 ? 1.2 : value === 8 ? 1.1 : 1.0;
+        const sphereSize = 80 * size;
+        sphere.style.width = `${sphereSize}px`;
+        sphere.style.height = `${sphereSize}px`;
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 200 + Math.random() * 200;
+        sphere.x = keypadContainer.clientWidth/2 + Math.cos(angle)*distance - sphereSize/2;
+        sphere.y = keypadContainer.clientHeight/2 + Math.sin(angle)*distance - sphereSize/2;
+
+        sphere.vx = Math.sin(angle) * (MAX_VELOCITY * 0.9);
+        sphere.vy = -Math.cos(angle) * (MAX_VELOCITY * 0.9);
+
+        const colors = [
+            {light:'#cbd5e1',dark:'#475569',glow:'rgba(203,213,225,0.8)'},
+            {light:'#fca5a5',dark:'#dc2626',glow:'rgba(252,165,165,0.8)'},
+            {light:'#7dd3fc',dark:'#0369a1',glow:'rgba(125,211,252,0.8)'},
+            {light:'#86efac',dark:'#16a34a',glow:'rgba(134,239,172,0.8)'},
+            {light:'#fde047',dark:'#ca8a04',glow:'rgba(253,224,71,0.8)'},
+            {light:'#d8b4fe',dark:'#9333ea',glow:'rgba(216,180,254,0.8)'},
+            {light:'#fdba74',dark:'#ea580c',glow:'rgba(253,186,116,0.8)'},
+            {light:'#fda4af',dark:'#e11d48',glow:'rgba(253,164,175,0.8)'},
+            {light:'#a5b4fc',dark:'#4f46e5',glow:'rgba(165,180,252,0.8)'},
+            {light:'#67e8f9',dark:'#0d9488',glow:'rgba(103,232,249,0.8)'}
+        ];
+        const color = colors[value];
+        sphere.style.setProperty('--planet-light', color.light);
+        sphere.style.setProperty('--planet-dark', color.dark);
+        sphere.style.setProperty('--planet-glow', color.glow);
+
+        sphere.style.left = `${sphere.x}px`;
+        sphere.style.top = `${sphere.y}px`;
+
+        keypadContainer.appendChild(sphere);
+        setupDragAndDrop(sphere);
+        sphereElements.push(sphere);
+
+        sphere.style.transform = 'scale(0)';
+        setTimeout(() => {
+            sphere.style.transition = 'transform 0.5s';
+            sphere.style.transform = 'scale(1)';
+        }, 20);
+    }
+
+    function animateSpheres() {
+        const W = keypadContainer.clientWidth;
+        const H = keypadContainer.clientHeight;
+
+        const containerRect = keypadContainer.getBoundingClientRect();
+        const centerX = containerRect.left + W/2;
+        const centerY = containerRect.top + H/2;
+
+        sphereElements.forEach(sphere => {
+            if (sphere !== activeSphere) {
+
+                const sRect = sphere.getBoundingClientRect();
+                const sCX = sRect.left + sRect.width/2;
+                const sCY = sRect.top + sRect.height/2;
+
+                const dx = centerX - sCX;
+                const dy = centerY - sCY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+
+                const gravity = dist < 300 ? 0.02 : 0.01;
+                sphere.vx += dx/dist * gravity;
+                sphere.vy += dy/dist * gravity;
+
+                sphere.x += sphere.vx;
+                sphere.y += sphere.vy;
+
+                sphere.vx += (Math.random()-0.5)*CHAOS_FACTOR;
+                sphere.vy += (Math.random()-0.5)*CHAOS_FACTOR;
+
+                const maxV = MAX_VELOCITY;
+                sphere.vx = Math.max(-maxV, Math.min(maxV, sphere.vx));
+                sphere.vy = Math.max(-maxV, Math.min(maxV, sphere.vy));
+
+                if (sphere.x < 0 || sphere.x > W - sRect.width) {
+                    sphere.vx *= -BOUNCE_FACTOR;
+                }
+                if (sphere.y < 0 || sphere.y > H - sRect.height) {
+                    sphere.vy *= -BOUNCE_FACTOR;
+                }
+
+                sphere.style.left = `${sphere.x}px`;
+                sphere.style.top = `${sphere.y}px`;
+            }
+        });
+
+        animationFrameId = requestAnimationFrame(animateSpheres);
+    }
+
+    function setupDragAndDrop(sphere) {
+        sphere.addEventListener('mousedown', (e) => {
+            if (isDragging || phoneInput.value.length === 10) return;
+            e.preventDefault();
+            isDragging = true;
+            activeSphere = sphere;
+            sphere.classList.add('dragging');
+
+            sphere.vx *= 0.3;
+            sphere.vy *= 0.3;
+        });
+    }
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging || !activeSphere) return;
+
+        const rect = keypadContainer.getBoundingClientRect();
+        const sW = activeSphere.offsetWidth;
+        const sH = activeSphere.offsetHeight;
+
+        activeSphere.x = Math.max(0, Math.min(
+            e.clientX - rect.left - sW/2,
+            keypadContainer.clientWidth - sW
+        ));
+
+        activeSphere.y = Math.max(0, Math.min(
+            e.clientY - rect.top - sH/2,
+            keypadContainer.clientHeight - sH
+        ));
+
+        activeSphere.style.left = `${activeSphere.x}px`;
+        activeSphere.style.top = `${activeSphere.y}px`;
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (!isDragging || !activeSphere) return;
+
+        if (checkCollision(activeSphere, targetZone)) {
+            handleSuccessfulDrop(activeSphere);
+        } else {
+            activeSphere.vx = (Math.random()-0.5)*2;
+            activeSphere.vy = (Math.random()-0.5)*2;
+        }
+
+        activeSphere.classList.remove('dragging');
+        activeSphere = null;
+        isDragging = false;
+    });
+
+    function checkCollision(sphere, target) {
+        const sRect = sphere.getBoundingClientRect();
+        const tRect = target.getBoundingClientRect();
+
+        const sCX = sRect.left + sRect.width/2;
+        const sCY = sRect.top + sRect.height/2;
+
+        const tCX = tRect.left + tRect.width/2;
+        const tCY = tRect.top + tRect.height/2;
+
+        const distance = Math.sqrt(
+            (sCX - tCX)**2 +
+            (sCY - tCY)**2
+        );
+
+        return distance < (tRect.width/2 + sRect.width/4);
+    }
+
+    function handleSuccessfulDrop(sphere) {
+        const value = sphere.dataset.value;
+
+        // Animation d'aspiration
+        sphere.style.transition = 'all 0.4s ease';
+        sphere.style.transform = 'scale(0.3) rotate(180deg)';
+        sphere.style.opacity = '0.5';
+
+        setTimeout(() => {
+            if (phoneInput.value.length < 10) {
+                phoneInput.value += value;
+            }
+            
+            // RÉPARATION : RÉINITIALISER LA SPHÈRE AU LIEU DE LA MASQUER
+            // Réinitialiser la position de la sphère
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 200 + Math.random() * 200;
+            const sphereSize = sphere.offsetWidth;
+            
+            sphere.x = keypadContainer.clientWidth/2 + Math.cos(angle)*distance - sphereSize/2;
+            sphere.y = keypadContainer.clientHeight/2 + Math.sin(angle)*distance - sphereSize/2;
+            
+            sphere.vx = Math.sin(angle) * (MAX_VELOCITY * 0.9);
+            sphere.vy = -Math.cos(angle) * (MAX_VELOCITY * 0.9);
+            
+            sphere.style.transition = 'all 0.8s ease';
+            sphere.style.transform = 'scale(1) rotate(0deg)';
+            sphere.style.opacity = '1';
+            sphere.style.left = `${sphere.x}px`;
+            sphere.style.top = `${sphere.y}px`;
+            
+            // La sphère reste dans le tableau sphereElements
+            // donc elle continue à être animée
+            
+        }, 400);
+    }
+
+});
+</script>
+
+</body>
+</html>
