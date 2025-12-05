@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Red Light, Green Light Form</title>
+    <style>
+      body {
+        background-color: #1a1a1a;
+        color: white;
+        font-family: "Courier New", Courier, monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+        transition: background-color 0.2s;
+      }
+
+      /* The Doll Container */
+      .doll-container {
+        margin-bottom: 50px;
+        text-align: center;
+      }
+
+      /* CSS Placeholder for the Doll (Replace with your GIFs later) */
+      .doll-head {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: #ffccaa; /* Skin tone */
+        position: relative;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 40px;
+      }
+
+      /* The Doll's Hair/Bun */
+      .doll-head::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        width: 110px;
+        height: 60px;
+        background: #222;
+        border-radius: 50px 50px 0 0;
+      }
+
+      /* STATE: GREEN LIGHT (Facing Away) */
+      .doll-head.facing-away {
+        background: #222; /* Back of head */
+        transform: rotateY(180deg);
+      }
+
+      /* STATE: RED LIGHT (Facing User) */
+      .doll-head.facing-user {
+        background: #ffccaa;
+        transform: rotateY(0deg);
+        border: 4px solid red;
+        box-shadow: 0 0 30px red;
+      }
+
+      /* Eyes logic for CSS doll */
+      .eyes {
+        display: flex;
+        gap: 20px;
+        opacity: 0; /* Hidden when facing away */
+        transition: opacity 0.1s;
+      }
+      .doll-head.facing-user .eyes {
+        opacity: 1;
+      }
+
+      /* Status Text */
+      #status {
+        margin-top: 20px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      /* The Form */
+      .input-zone {
+        position: relative;
+        width: 300px;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        border: 2px solid #555;
+        background: #333;
+        color: #fff;
+        border-radius: 5px;
+        outline: none;
+      }
+
+      input[type="text"]:focus {
+        border-color: #00ff9d;
+      }
+
+      /* Elimination Effect */
+      body.eliminated {
+        background-color: #550000;
+        animation: shake 0.5s;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translate(1px, 1px) rotate(0deg);
+        }
+        10% {
+          transform: translate(-1px, -2px) rotate(-1deg);
+        }
+        20% {
+          transform: translate(-3px, 0px) rotate(1deg);
+        }
+        30% {
+          transform: translate(3px, 2px) rotate(0deg);
+        }
+        40% {
+          transform: translate(1px, -1px) rotate(1deg);
+        }
+        50% {
+          transform: translate(-1px, 2px) rotate(-1deg);
+        }
+        60% {
+          transform: translate(-3px, 1px) rotate(0deg);
+        }
+        70% {
+          transform: translate(3px, 1px) rotate(-1deg);
+        }
+        80% {
+          transform: translate(-1px, -1px) rotate(1deg);
+        }
+        90% {
+          transform: translate(1px, 2px) rotate(0deg);
+        }
+        100% {
+          transform: translate(1px, -2px) rotate(-1deg);
+        }
+      }
+
+      .blood-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: red;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.1s;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="blood-overlay" id="bloodOverlay"></div>
+
+    <!-- Background music (place squid-game.mp3 in the same folder) -->
+    <audio id="bg-audio" src="squid-game.mp3" loop></audio>
+    <button
+      id="audio-toggle"
+      aria-label="Toggle background music"
+      style="
+        position: fixed;
+        bottom: 12px;
+        right: 12px;
+        z-index: 1000;
+        background: #222;
+        color: #fff;
+        border: 1px solid #444;
+        border-radius: 6px;
+        padding: 8px 10px;
+        font-size: 16px;
+        opacity: 0.8;
+      "
+    >
+      🔈
+    </button>
+
+    <div class="doll-container">
+      <!-- Replace this div with your GIF later -->
+      <div class="doll-head facing-away" id="doll">
+        <div class="eyes">👀</div>
+      </div>
+      <div id="status" style="color: #00ff9d">Green Light</div>
+    </div>
+
+    <div class="input-zone">
+      <label for="riskyInput">Enter your email to survive:</label>
+      <br /><br />
+      <input
+        type="text"
+        id="riskyInput"
+        placeholder="Type carefully..."
+        autocomplete="off"
+      />
+    </div>
+
+    <script>
+      const doll = document.getElementById("doll");
+      const statusText = document.getElementById("status");
+      const input = document.getElementById("riskyInput");
+      const body = document.body;
+      const bloodOverlay = document.getElementById("bloodOverlay");
+
+      let isRedLight = false;
+      let gameActive = true;
+
+      // Random time generator between min and max ms
+      function randomTime(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+      }
+
+      // The Game Loop
+      function toggleLight() {
+        if (!gameActive) return;
+
+        if (isRedLight) {
+          // Switch to GREEN
+          isRedLight = false;
+          doll.classList.remove("facing-user");
+          doll.classList.add("facing-away");
+          statusText.innerText = "Green Light";
+          statusText.style.color = "#00ff9d";
+
+          // Stay green for ~5 seconds
+          setTimeout(toggleLight, 5000);
+        } else {
+          // Switch to RED
+          isRedLight = true;
+          doll.classList.remove("facing-away");
+          doll.classList.add("facing-user");
+          statusText.innerText = "RED LIGHT";
+          statusText.style.color = "red";
+
+          // Stay red for 2-5 seconds
+          setTimeout(toggleLight, randomTime(2000, 5000));
+        }
+      }
+
+      // Detect Typing
+      input.addEventListener("input", (e) => {
+        if (isRedLight) {
+          eliminatePlayer();
+        }
+      });
+
+      // Also detect keydown for non-character keys (like backspace) if you want to be extra mean
+      input.addEventListener("keydown", (e) => {
+        if (isRedLight) {
+          eliminatePlayer();
+        }
+      });
+
+      function eliminatePlayer() {
+        // Visual feedback
+        body.classList.add("eliminated");
+        bloodOverlay.style.opacity = "0.4";
+        statusText.innerText = "ELIMINATED!";
+
+        // Clear input
+        input.value = "";
+        input.blur(); // Remove focus
+        input.disabled = true;
+
+        // Reset after 2 seconds
+        setTimeout(() => {
+          body.classList.remove("eliminated");
+          bloodOverlay.style.opacity = "0";
+          input.disabled = false;
+          input.focus();
+
+          // Reset game loop
+          // (In a real app, maybe you make them reload page)
+        }, 2000);
+      }
+
+      // Start the game loop
+      setTimeout(toggleLight, 1000);
+
+      // ===== Background audio handling =====
+      (function () {
+        const audio = document.getElementById("bg-audio");
+        const toggle = document.getElementById("audio-toggle");
+
+        // prefer a reasonable default volume (increased)
+        audio.volume = 0.8;
+
+        // Try to autoplay; browsers may block this until user interaction.
+        function tryPlay() {
+          audio
+            .play()
+            .then(() => {
+              // playing
+              toggle.textContent = "🔊";
+            })
+            .catch(() => {
+              // autoplay blocked; keep paused until user interacts
+              toggle.textContent = "🔈";
+            });
+        }
+
+        // Initial attempt
+        tryPlay();
+
+        // If autoplay blocked, play on first user gesture
+        ["click", "keydown", "touchstart"].forEach((ev) => {
+          document.addEventListener(ev, function onFirstGesture() {
+            tryPlay();
+            document.removeEventListener(ev, onFirstGesture);
+          });
+        });
+
+        // Toggle button behavior
+        toggle.addEventListener("click", () => {
+          if (audio.paused) {
+            audio
+              .play()
+              .then(() => (toggle.textContent = "🔊"))
+              .catch(() => (toggle.textContent = "🔈"));
+          } else {
+            audio.pause();
+            toggle.textContent = "🔈";
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

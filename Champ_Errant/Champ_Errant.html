@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Challenge Fuyant</title>
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background-color: #87ceeb; /* bleu clair fixe */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.input-zone {
+    position: absolute;
+    transition: all 0.05s;
+}
+
+input[type="text"] {
+    padding: 15px 25px;
+    font-size: 18px;
+    border: 3px solid #555;
+    border-radius: 12px;
+    outline: none;
+    transition: all 0.05s, box-shadow 0.2s;
+    background-color: #f0f8ff; /* blanc bleuté */
+    color: #0077cc; /* bleu foncé */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+input[type="text"]:focus {
+    border-color: #00aaff;
+    box-shadow: 0 0 25px rgba(0,170,255,0.5);
+}
+</style>
+</head>
+<body>
+
+<div class="input-zone" id="inputZone">
+    <input type="text" id="hardInput" placeholder="Attrape-moi !" autocomplete="off">
+</div>
+
+<script>
+const inputZone = document.getElementById('inputZone');
+const input = document.getElementById('hardInput');
+
+// Fonction pour déplacer l'input aléatoirement
+function moveInputRandomly() {
+    const maxX = window.innerWidth - inputZone.offsetWidth;
+    const maxY = window.innerHeight - inputZone.offsetHeight;
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+    inputZone.style.left = `${x}px`;
+    inputZone.style.top = `${y}px`;
+}
+
+// Tremblement et rotation
+function shakeInput() {
+    const x = Math.random()*20-10;
+    const y = Math.random()*20-10;
+    const rot = Math.random()*15-7.5;
+    inputZone.style.transform = `translate(${x}px, ${y}px) rotate(${rot}deg)`;
+}
+
+// Clignotement du texte
+function blinkInput() {
+    input.style.opacity = '0';
+    setTimeout(() => { input.style.opacity = '1'; }, 100);
+}
+
+// Couleurs bleu/blanc aléatoires
+function randomBlueColor() {
+    const lightness = 220 + Math.floor(Math.random()*36); // 220-255
+    input.style.backgroundColor = `rgb(${lightness}, ${lightness}, 255)`; // fond bleu/blanc
+    const darkBlue = 80 + Math.floor(Math.random()*176); // 80-255
+    input.style.color = `rgb(0, 0, ${darkBlue})`; // texte bleu foncé
+}
+
+// Input fuit le curseur
+document.addEventListener('mousemove', e => {
+    const rect = inputZone.getBoundingClientRect();
+    const distance = Math.hypot(e.clientX - (rect.left + rect.width/2), e.clientY - (rect.top + rect.height/2));
+    if (distance < 100) { // si souris proche
+        const maxX = window.innerWidth - inputZone.offsetWidth;
+        const maxY = window.innerHeight - inputZone.offsetHeight;
+        const newX = Math.random() * maxX;
+        const newY = Math.random() * maxY;
+        inputZone.style.left = `${newX}px`;
+        inputZone.style.top = `${newY}px`;
+    }
+});
+
+// À chaque frappe
+input.addEventListener('input', () => {
+    moveInputRandomly();
+    shakeInput();
+    blinkInput();
+    randomBlueColor();
+});
+
+// Déplacement automatique toutes les 1.5s
+setInterval(() => {
+    moveInputRandomly();
+}, 1500);
+
+// Rotation douce périodique
+setInterval(() => {
+    const angle = Math.random()*10-5;
+    inputZone.style.transform += ` rotate(${angle}deg)`;
+}, 1200);
+
+</script>
+
+</body>
+</html>

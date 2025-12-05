@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saisie Minimaliste | Lettres Volantes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 1. Paramètres de base et polices */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* 2. Corps et arrière-plan  */
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* conteneur de contenu */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+        }
+        
+        /* Champ de saisie */
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 1.2rem;
+            color: #00ffc8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        #nomInput {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 2.5rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 3px solid #00ffc8;
+            border-radius: 10px;
+            color: #fff;
+            text-align: center;
+            letter-spacing: 6px;
+            outline: none;
+            transition: all 0.3s;
+            caret-color: transparent;
+            font-weight: 700;
+        }
+        
+        #nomInput:focus {
+            border-color: #00eaff;
+            box-shadow: 0 0 25px rgba(0, 255, 200, 0.8);
+        }
+
+        .input-container {
+            position: relative;
+        }
+        
+        /* 5. conteneur de caractères flottant */
+        .lettres-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        /* 6Conception de lettres flottantes */
+        .lettre-volante {
+            position: absolute;
+            font-size: 2.2rem;
+            font-weight: bold;
+            pointer-events: auto;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s, opacity 0.2s;
+            text-shadow: 0 0 15px currentColor;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            z-index: 2;
+        }
+        
+        .lettre-volante:hover {
+            transform: scale(1.3);
+            z-index: 100;
+            box-shadow: 0 0 30px currentColor;
+        }
+        
+        /* 7. Bouton « Tout effacer » */
+        #clearButton {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            display: none;
+        }
+
+        #clearButton:hover {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-group">
+            <label for="nomInput">SAISIE DU NOM</label>
+            <div class="input-container">
+                <input type="text" id="nomInput" placeholder="Cliquez sur les lettres flottantes..." readonly>
+                <div class="input-disabled" title="Clavier désactivé - Utilisez les lettres volantes"></div>
+                <button id="clearButton" title="Effacer tout">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="lettres-container" id="lettresContainer"></div>
+
+    <script>
+        // Éléments clés
+        const nomInput = document.getElementById('nomInput');
+        const clearButton = document.getElementById('clearButton');
+        const lettresContainer = document.getElementById('lettresContainer');
+        
+        // Couleurs 
+        const couleursLettres = [
+            '#FF6B6B', '#48C9B0', '#F7DC6F', '#A569BD', '#3498DB', 
+            '#F39C12', '#E74C3C', '#2ECC71', '#9B59B6', '#1ABC9C'
+        ];
+        
+        let lettresDisponibles = [];
+        let lettresVolantes = [];
+        let animationFrameId;
+
+        // ** تم زيادة السرعة هنا **
+        const BASE_VITESSE = 2.0; // زيادة السرعة الأولية للأحرف
+        const VITESSE_MODIFIER = 2.5; // مضاعف السرعة للحركة المستمرة (مُعدَّل من 1.6)
+
+        // *** جزء التهيئة ***
+        function initialiserInterface() {
+            lettresDisponibles = [];
+            for (let i = 65; i <= 90; i++) {
+                lettresDisponibles.push(String.fromCharCode(i));
+            }
+            
+            nomInput.value = '';
+            clearButton.style.display = 'none';
+            
+            creerLettresVolantes();
+            desactiverClavier();
+            startAnimationLoop();
+        }
+        
+        // *** منع استخدام لوحة المفاتيح الفعلية ***
+        function desactiverClavier() {
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Tab') e.preventDefault();
+            });
+            document.addEventListener('cut', (e) => e.preventDefault());
+            document.addEventListener('copy', (e) => e.preventDefault());
+            document.addEventListener('paste', (e) => e.preventDefault());
+        }
+        
+        // *** إنشاء الأحرف الطائرة ***
+        function creerLettresVolantes() {
+            lettresContainer.innerHTML = '';
+            lettresVolantes = [];
+            
+            lettresDisponibles.forEach((lettre, index) => {
+                const lettreElement = document.createElement('div');
+                lettreElement.className = 'lettre-volante';
+                lettreElement.textContent = lettre;
+                
+                const couleur = couleursLettres[index % couleursLettres.length];
+                lettreElement.style.color = couleur;
+                lettreElement.style.borderColor = couleur;
+                
+                const posX = Math.random() * 80 + 10;
+                const posY = Math.random() * 80 + 10;
+                lettreElement.style.left = `${posX}%`;
+                lettreElement.style.top = `${posY}%`;
+                
+                // تطبيق الزيادة في السرعة الأولية
+                const vitesseX = (Math.random() - 0.5) * BASE_VITESSE; 
+                const vitesseY = (Math.random() - 0.5) * BASE_VITESSE;
+                
+                lettresContainer.appendChild(lettreElement);
+                
+                const lettreObj = {
+                    element: lettreElement,
+                    x: posX,
+                    y: posY,
+                    vitesseX: vitesseX,
+                    vitesseY: vitesseY,
+                };
+                
+                lettresVolantes.push(lettreObj);
+                
+                lettreElement.addEventListener('click', () => ajouterLettre(lettre, lettreElement));
+            });
+        }
+        
+        // *** حلقة الحركة المستمرة ***
+        function startAnimationLoop() {
+            const containerRect = document.body.getBoundingClientRect();
+            
+            // حساب خصائص الـ input مرة واحدة قبل الحلقة
+            const inputRect = nomInput.getBoundingClientRect();
+            const inputCenterX = inputRect.left + inputRect.width / 2;
+            const inputCenterY = inputRect.top + inputRect.height / 2;
+            const inputRadius = Math.max(inputRect.width, inputRect.height) / 1.5;
+
+            const animer = () => {
+                lettresVolantes.forEach(lettreObj => {
+                    // تطبيق الزيادة في السرعة عبر المُعدِّل
+                    lettreObj.x += lettreObj.vitesseX * VITESSE_MODIFIER;
+                    lettreObj.y += lettreObj.vitesseY * VITESSE_MODIFIER;
+
+                    // تطبيق حدود الشاشة (ارتداد)
+                    if (lettreObj.x <= 2 || lettreObj.x >= 93) {
+                        lettreObj.vitesseX *= -1;
+                        lettreObj.x = lettreObj.x <= 2 ? 2 : 93;
+                    }
+                    if (lettreObj.y <= 2 || lettreObj.y >= 93) {
+                        lettreObj.vitesseY *= -1;
+                        lettreObj.y = lettreObj.y <= 2 ? 2 : 93;
+                    }
+                    
+                    // L'effet de répulsion autour de l'entrée
+                    const letterAbsX = (lettreObj.x / 100) * containerRect.width;
+                    const letterAbsY = (lettreObj.y / 100) * containerRect.height;
+
+                    const dx = inputCenterX - letterAbsX;
+                    const dy = inputCenterY - letterAbsY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    // Réduire légèrement la plage de dissonance (pour augmenter la vitesse de calcul).
+                    if (distance < inputRadius * 1.5) {
+                        const angle = Math.atan2(dy, dx);
+                        const force = (inputRadius * 1.5 - distance) / 10000;
+                        
+                        lettreObj.vitesseX -= Math.cos(angle) * force * 1.5; // زيادة قوة التنافر
+                        lettreObj.vitesseY -= Math.sin(angle) * force * 1.5;
+                        
+                        lettreObj.vitesseX *= 0.99;
+                        lettreObj.vitesseY *= 0.99;
+                    }
+
+                    // Application de positionnement
+                    lettreObj.element.style.left = `${lettreObj.x}%`;
+                    lettreObj.element.style.top = `${lettreObj.y}%`;
+                });
+                
+                animationFrameId = requestAnimationFrame(animer);
+            };
+            
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            animer();
+        }
+        
+        // *** Ajouter un caractère au champ de saisie ***
+        function ajouterLettre(lettre, element) {
+            nomInput.value += lettre;
+            
+            if (nomInput.value.length > 0) {
+                clearButton.style.display = 'block';
+            }
+            
+            // Accélération du mouvement visuel du clic
+            element.style.transition = 'transform 0.05s'; 
+            element.style.transform = 'scale(1.5)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1.0)';
+                element.style.transition = 'transform 0.3s';
+            }, 50); // تقليل وقت التأخير من 100ms إلى 50ms
+        }
+        
+        // *** Effacer tous les caractères ***
+        function effacerTout() {
+            nomInput.value = '';
+            clearButton.style.display = 'none';
+        }
+
+        // *** Événements liés ***
+        document.addEventListener('DOMContentLoaded', initialiserInterface);
+        clearButton.addEventListener('click', effacerTout);
+
+        nomInput.addEventListener('input', () => {
+             if (nomInput.value.length === 0) {
+                clearButton.style.display = 'none';
+            } else {
+                clearButton.style.display = 'block';
+            }
+        });
+        window.addEventListener('resize', () => {
+            // Recalculez le mouvement pour vous assurer que les caractères flottent correctement autour de la nouvelle entrée.
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            startAnimationLoop();
+        });
+
+    </script>
+</body>
+</html>
