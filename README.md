@@ -2,8 +2,8 @@
 ## 1. Champ Errant
 [Source Code](./Champ_Errant/Champ_Errant.html)
 - [Screen Recording](./Champ_Errant/Champ_Errant.mp4) <!-- TODO: Add screen recording link (YouTube, Vimeo, etc.) -->
-- [Live Interactive Example!!!](https://23002su.github.io/letscode_defi5/Champ_Errant/Champ_Errant.html)
-- <a href="./Phone-Slider-Selector/BadUIPhone.html" target="_blank">![Bad UI Phone Gif](./Champ_Errant/Champ_Errant.mp4)</a>
+- [Live Interactive Example!!!](https://23002su.github.io/letscode_defi5/Champ_Errant/Champ_Errant.gif)
+- <a href="./Phone-Slider-Selector/BadUIPhone.html" target="_blank">![Bad UI Phone Gif](./Champ_Errant/Champ_Errant.gif)</a>
 
 ## 2. Clavier Céleste
 [Source Code](./Clavier_Céleste/Clavier_Céleste.html)
@@ -24,6 +24,7 @@
 [Source Code](./watch_out_mario/)
 - [Screen Recording](#) <!-- TODO: Add screen recording link (YouTube, Vimeo, etc.) -->
 - [Live Interactive Example!!!](https://23002su.github.io/letscode_defi5/watch_out_mario/index.html)
+
 
 
 
